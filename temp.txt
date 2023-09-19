@@ -1,0 +1,250 @@
+
+----- Bug "A" with Test "test1-inv.as" -----
+
+----- Bug "A" with Test "test1.as" -----
+
+----- Bug "A" with Test "test2-inv.as" -----
+
+----- Bug "A" with Test "test3-inv.as" -----
+
+----- Bug "A" with Test "test4-inv.as" -----
+
+----- Bug "A" with Test "test5-inv.as" -----
+
+----- Bug "A" with Test "test6-inv.as" -----
+
+----- Bug "B" with Test "test1-inv.as" -----
+
+----- Bug "B" with Test "test1.as" -----
+
+----- Bug "B" with Test "test2-inv.as" -----
+
+----- Bug "B" with Test "test3-inv.as" -----
+
+----- Bug "B" with Test "test4-inv.as" -----
+Executable ran the test case successfully, when the test case should have caused it to exit(1)
+Test case exposed instructor buggy solution
+
+----- Bug "C" with Test "test1-inv.as" -----
+
+----- Bug "C" with Test "test1.as" -----
+
+----- Bug "C" with Test "test2-inv.as" -----
+
+----- Bug "C" with Test "test3-inv.as" -----
+
+----- Bug "C" with Test "test4-inv.as" -----
+
+----- Bug "C" with Test "test5-inv.as" -----
+
+----- Bug "C" with Test "test6-inv.as" -----
+
+----- Bug "D" with Test "test1-inv.as" -----
+
+----- Bug "D" with Test "test1.as" -----
+
+----- Bug "D" with Test "test2-inv.as" -----
+
+----- Bug "D" with Test "test3-inv.as" -----
+
+----- Bug "D" with Test "test4-inv.as" -----
+
+----- Bug "D" with Test "test5-inv.as" -----
+
+----- Bug "D" with Test "test6-inv.as" -----
+
+----- Bug "E" with Test "test1-inv.as" -----
+
+----- Bug "E" with Test "test1.as" -----
+
+----- Bug "E" with Test "test2-inv.as" -----
+
+----- Bug "E" with Test "test3-inv.as" -----
+
+----- Bug "E" with Test "test4-inv.as" -----
+
+----- Bug "E" with Test "test5-inv.as" -----
+
+----- Bug "E" with Test "test6-inv.as" -----
+
+----- Bug "F" with Test "test1-inv.as" -----
+
+----- Bug "F" with Test "test1.as" -----
+
+----- Bug "F" with Test "test2-inv.as" -----
+
+----- Bug "F" with Test "test3-inv.as" -----
+
+----- Bug "F" with Test "test4-inv.as" -----
+
+----- Bug "F" with Test "test5-inv.as" -----
+
+----- Bug "F" with Test "test6-inv.as" -----
+
+----- Bug "G" with Test "test1-inv.as" -----
+
+----- Bug "G" with Test "test1.as" -----
+
+----- Bug "G" with Test "test2-inv.as" -----
+
+----- Bug "G" with Test "test3-inv.as" -----
+
+----- Bug "G" with Test "test4-inv.as" -----
+
+----- Bug "G" with Test "test5-inv.as" -----
+
+----- Bug "G" with Test "test6-inv.as" -----
+
+----- Bug "H" with Test "test1-inv.as" -----
+
+----- Bug "H" with Test "test1.as" -----
+
+----- Bug "H" with Test "test2-inv.as" -----
+
+----- Bug "H" with Test "test3-inv.as" -----
+
+----- Bug "H" with Test "test4-inv.as" -----
+
+----- Bug "H" with Test "test5-inv.as" -----
+
+----- Bug "H" with Test "test6-inv.as" -----
+
+----- Bug "I" with Test "test1-inv.as" -----
+
+----- Bug "I" with Test "test1.as" -----
+
+----- Bug "I" with Test "test2-inv.as" -----
+
+----- Bug "I" with Test "test3-inv.as" -----
+
+----- Bug "I" with Test "test4-inv.as" -----
+
+----- Bug "I" with Test "test5-inv.as" -----
+
+----- Bug "I" with Test "test6-inv.as" -----
+
+----- Bug "J" with Test "test1-inv.as" -----
+
+----- Bug "J" with Test "test1.as" -----
+
+----- Bug "J" with Test "test2-inv.as" -----
+
+----- Bug "J" with Test "test3-inv.as" -----
+
+----- Bug "J" with Test "test4-inv.as" -----
+
+----- Bug "J" with Test "test5-inv.as" -----
+
+----- Bug "J" with Test "test6-inv.as" -----
+
+----- Bug "K" with Test "test1-inv.as" -----
+
+----- Bug "K" with Test "test1.as" -----
+Executable produced incorrect output for the given test case
+Test case exposed instructor buggy solution
+
+----- Bug "L" with Test "test1-inv.as" -----
+
+----- Bug "L" with Test "test1.as" -----
+
+----- Bug "L" with Test "test2-inv.as" -----
+
+----- Bug "L" with Test "test3-inv.as" -----
+
+----- Bug "L" with Test "test4-inv.as" -----
+
+----- Bug "L" with Test "test5-inv.as" -----
+
+----- Bug "L" with Test "test6-inv.as" -----
+
+----- Bug "M" with Test "test1-inv.as" -----
+
+----- Bug "M" with Test "test1.as" -----
+
+----- Bug "M" with Test "test2-inv.as" -----
+
+----- Bug "M" with Test "test3-inv.as" -----
+
+----- Bug "M" with Test "test4-inv.as" -----
+
+----- Bug "M" with Test "test5-inv.as" -----
+
+----- Bug "M" with Test "test6-inv.as" -----
+
+----- Bug "N" with Test "test1-inv.as" -----
+
+----- Bug "N" with Test "test1.as" -----
+
+----- Bug "N" with Test "test2-inv.as" -----
+
+----- Bug "N" with Test "test3-inv.as" -----
+
+----- Bug "N" with Test "test4-inv.as" -----
+
+----- Bug "N" with Test "test5-inv.as" -----
+
+----- Bug "N" with Test "test6-inv.as" -----
+
+----- Bug "O" with Test "test1-inv.as" -----
+
+----- Bug "O" with Test "test1.as" -----
+Executable produced incorrect output for the given test case
+Test case exposed instructor buggy solution
+
+----- Bug "W" with Test "test1-inv.as" -----
+
+----- Bug "W" with Test "test1.as" -----
+
+----- Bug "W" with Test "test2-inv.as" -----
+
+----- Bug "W" with Test "test3-inv.as" -----
+
+----- Bug "W" with Test "test4-inv.as" -----
+
+----- Bug "W" with Test "test5-inv.as" -----
+
+----- Bug "W" with Test "test6-inv.as" -----
+
+----- Bug "X" with Test "test1-inv.as" -----
+
+----- Bug "X" with Test "test1.as" -----
+
+----- Bug "X" with Test "test2-inv.as" -----
+
+----- Bug "X" with Test "test3-inv.as" -----
+
+----- Bug "X" with Test "test4-inv.as" -----
+
+----- Bug "X" with Test "test5-inv.as" -----
+
+----- Bug "X" with Test "test6-inv.as" -----
+
+----- Bug "Y" with Test "test1-inv.as" -----
+
+----- Bug "Y" with Test "test1.as" -----
+
+----- Bug "Y" with Test "test2-inv.as" -----
+
+----- Bug "Y" with Test "test3-inv.as" -----
+
+----- Bug "Y" with Test "test4-inv.as" -----
+
+----- Bug "Y" with Test "test5-inv.as" -----
+
+----- Bug "Y" with Test "test6-inv.as" -----
+
+----- Bug "Z" with Test "test1-inv.as" -----
+
+----- Bug "Z" with Test "test1.as" -----
+
+----- Bug "Z" with Test "test2-inv.as" -----
+
+----- Bug "Z" with Test "test3-inv.as" -----
+
+----- Bug "Z" with Test "test4-inv.as" -----
+
+----- Bug "Z" with Test "test5-inv.as" -----
+
+----- Bug "Z" with Test "test6-inv.as" -----
+Executable ran the test case successfully, when the test case should have caused it to exit(1)
+Test case exposed instructor buggy solution
