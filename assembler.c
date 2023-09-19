@@ -34,6 +34,10 @@ static inline int8_t checkReg(char* s);
 int32_t everything2dec(const char* op, const char* arg0, const char* arg1, const char* arg2);
 int32_t findTargetLine(const char* label, const char labels[MAXLINELENGTH][MAXLINELENGTH], int lineCnt);
 int32_t isLocalLabel(const char* label);
+int32_t isGlobalLabel(const char* label);
+int32_t hasLabel(const char* label);
+char* hasSymbolicAddress(enum Operator opc, char* arg0, char* arg2);
+char* hasGlobalSymbolicAddress(enum Operator opc, char* arg0, char* arg2);
 
 int main(int argc, char** argv) {
     char *inFileString, *outFileString;
@@ -76,18 +80,6 @@ int main(int argc, char** argv) {
     }
     lineCnt--;
 
-    int32_t tCnt = 0, dCnt = 0, sCnt = 0, rCnt = 0;
-    for (uint32_t i = 0; i <= lineCnt; i++) {
-        enum Operator opc = c2o(opcodes[i]);
-        if (opc == UNKNOWN)
-            exit(1);
-        if (strcmp(labels[i], "") && strcmp(labels[i], " "))
-            for (uint32_t j = 0; j < i; j++)
-                if (!strcmp(labels[i], labels[j]))
-                    exit(1);
-        // TODO: count lines
-    }
-
     // handle comments
     for (uint32_t i = 0; i <= lineCnt; i++) {
         enum Operator opc = c2o(opcodes[i]);
@@ -124,31 +116,53 @@ int main(int argc, char** argv) {
                 break;
         }
     }
-    // handle outputs
+
+    int32_t tCnt = 0, dCnt = 0, sCnt = 0, rCnt = 0;
     for (uint32_t i = 0; i <= lineCnt; i++) {
         enum Operator opc = c2o(opcodes[i]);
-        char* theLabel = NULL;
-        if (opc == LW || opc == SW || opc == BEQ)
-            theLabel = arg2s[i];
-        else if (opc == FILL)
-            theLabel = arg0s[i];
-        if ((opc == LW || opc == SW || opc == BEQ || opc == FILL) && (!isNumber(theLabel))) {
+        if (opc == UNKNOWN)
+            exit(1);
+        if (hasLabel(labels[i]))
+            for (uint32_t j = 0; j < i; j++)
+                if (!strcmp(labels[i], labels[j]))
+                    exit(1);
+        if (opc == FILL)
+            dCnt++;
+        else
+            tCnt++;
+        // TODO: handle adding to symbolic table
+        if (isGlobalLabel(labels[i]))
+            sCnt++;
+        // TODO: completely wrong, rewrite
+        if (hasSymbolicAddress(opc, arg0s[i], arg2s[i])) {
+            if (opc != BEQ)
+                rCnt++;
+            char* theLabel = hasSymbolicAddress(opc, arg0s[i], arg2s[i]);
             int32_t targetLine = findTargetLine(theLabel, labels, lineCnt);
-            if (targetLine == -1 && isLocalLabel(theLabel))
-                exit(1);
-            switch (opc) {
-                case LW:
-                case SW:
-                    sprintf(arg2s[i], "%d", targetLine);
-                    break;
-                case BEQ:
-                    sprintf(arg2s[i], "%d", targetLine - i - 1);
-                    break;
-                case FILL:
-                    sprintf(arg0s[i], "%d", targetLine);
-                    break;
-                default:
-                    break;
+            if (targetLine == -1) {
+                if (isLocalLabel(theLabel))
+                    exit(1);
+                if (opc == BEQ)
+                    exit(1);
+                sCnt++;
+                // TODO: handle adding to symbolic table
+
+                strcpy(theLabel, "0");
+            } else {
+                switch (opc) {
+                    case LW:
+                    case SW:
+                        sprintf(arg2s[i], "%d", targetLine);
+                        break;
+                    case BEQ:
+                        sprintf(arg2s[i], "%d", targetLine - i - 1);
+                        break;
+                    case FILL:
+                        sprintf(arg0s[i], "%d", targetLine);
+                        break;
+                    default:
+                        break;
+                }
             }
         }
         if ((opc == LW || opc == SW || opc == BEQ) && (atoi(arg2s[i]) < -32768 || atoi(arg2s[i]) > 32767)) {
@@ -156,6 +170,42 @@ int main(int argc, char** argv) {
             exit(1);
         }
     }
+
+    fprintf(outFilePtr, "%d %d %d %d\n", tCnt, dCnt, sCnt, rCnt);
+
+    // // handle outputs
+    // for (uint32_t i = 0; i <= lineCnt; i++) {
+    //     enum Operator opc = c2o(opcodes[i]);
+    //     // char* theLabel = NULL;
+    //     // if (opc == LW || opc == SW || opc == BEQ)
+    //     //     theLabel = arg2s[i];
+    //     // else if (opc == FILL)
+    //     //     theLabel = arg0s[i];
+    //     if (hasSymbolicAddress(opc, arg0s[i], arg2s[i])) {
+    //         char* theLabel = hasSymbolicAddress(opc, arg0s[i], arg2s[i]);
+    //         int32_t targetLine = findTargetLine(theLabel, labels, lineCnt);
+    //         if (targetLine == -1 && isLocalLabel(theLabel))
+    //             exit(1);
+    //         switch (opc) {
+    //             case LW:
+    //             case SW:
+    //                 sprintf(arg2s[i], "%d", targetLine);
+    //                 break;
+    //             case BEQ:
+    //                 sprintf(arg2s[i], "%d", targetLine - i - 1);
+    //                 break;
+    //             case FILL:
+    //                 sprintf(arg0s[i], "%d", targetLine);
+    //                 break;
+    //             default:
+    //                 break;
+    //         }
+    //     }
+    //     if ((opc == LW || opc == SW || opc == BEQ) && (atoi(arg2s[i]) < -32768 || atoi(arg2s[i]) > 32767)) {
+    //         printf("Error: unsupported offsets %s\n", arg2s[i]);
+    //         exit(1);
+    //     }
+    // }
 
     // for (uint32_t i = 0; i <= lineCnt; i++)
     //     fprintf(outFilePtr, "%s %s %s %s %s\n", labels[i], opcodes[i], arg0s[i], arg1s[i], arg2s[i]);
@@ -289,7 +339,6 @@ int32_t everything2dec(const char* op, const char* arg0, const char* arg1, const
 }
 
 int32_t findTargetLine(const char* label, const char labels[MAXLINELENGTH][MAXLINELENGTH], int lineCnt) {
-    int32_t targetLine = -1;
     for (int k = 0; k <= lineCnt; k++)
         if (!strcmp(labels[k], label)) {
             return k;
@@ -297,6 +346,30 @@ int32_t findTargetLine(const char* label, const char labels[MAXLINELENGTH][MAXLI
     return -1;
 }
 
+int32_t hasLabel(const char* label) {
+    return strcmp(label, "") && strcmp(label, " ");
+}
+
 int32_t isLocalLabel(const char* label) {
-    return islower(label[0]);
+    return hasLabel(label) && islower(label[0]);
+}
+
+int32_t isGlobalLabel(const char* label) {
+    return hasLabel(label) && isupper(label[0]);
+}
+
+char* hasSymbolicAddress(enum Operator opc, char* arg0, char* arg2) {
+    char* theLabel = NULL;
+    if (opc == LW || opc == SW || opc == BEQ)
+        theLabel = arg2;
+    else if (opc == FILL)
+        theLabel = arg0;
+    else
+        return NULL;
+    return ((opc == LW || opc == SW || opc == BEQ || opc == FILL) && (!isNumber(theLabel))) ? theLabel : NULL;
+}
+
+char* hasGlobalSymbolicAddress(enum Operator opc, char* arg0, char* arg2) {
+    char* theLabel = hasSymbolicAddress(opc, arg0, arg2);
+    return (theLabel && isGlobalLabel(theLabel)) ? theLabel : NULL;
 }
