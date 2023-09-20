@@ -190,44 +190,9 @@ int main(int argc, char** argv) {
         }
     }
 
+    // print output
+
     fprintf(outFilePtr, "%d %d %d %d\n", tCnt, dCnt, sCnt, rCnt);
-
-    // // handle outputs
-    // for (uint32_t i = 0; i <= lineCnt; i++) {
-    //     enum Operator opc = c2o(opcodes[i]);
-    //     // char* theLabel = NULL;
-    //     // if (opc == LW || opc == SW || opc == BEQ)
-    //     //     theLabel = arg2s[i];
-    //     // else if (opc == FILL)
-    //     //     theLabel = arg0s[i];
-    //     if (hasSymbolicAddress(opc, arg0s[i], arg2s[i])) {
-    //         char* theLabel = hasSymbolicAddress(opc, arg0s[i], arg2s[i]);
-    //         int32_t targetLine = findTargetLine(theLabel, labels, lineCnt);
-    //         if (targetLine == -1 && isLocalLabel(theLabel))
-    //             exit(1);
-    //         switch (opc) {
-    //             case LW:
-    //             case SW:
-    //                 sprintf(arg2s[i], "%d", targetLine);
-    //                 break;
-    //             case BEQ:
-    //                 sprintf(arg2s[i], "%d", targetLine - i - 1);
-    //                 break;
-    //             case FILL:
-    //                 sprintf(arg0s[i], "%d", targetLine);
-    //                 break;
-    //             default:
-    //                 break;
-    //         }
-    //     }
-    //     if ((opc == LW || opc == SW || opc == BEQ) && (atoi(arg2s[i]) < -32768 || atoi(arg2s[i]) > 32767)) {
-    //         printf("Error: unsupported offsets %s\n", arg2s[i]);
-    //         exit(1);
-    //     }
-    // }
-
-    // for (uint32_t i = 0; i <= lineCnt; i++)
-    //     fprintf(outFilePtr, "%s %s %s %s %s\n", labels[i], opcodes[i], arg0s[i], arg1s[i], arg2s[i]);
 
     for (uint32_t i = 0; i <= lineCnt; i++)
         fprintf(outFilePtr, "%d\n", everything2dec(opcodes[i], arg0s[i], arg1s[i], arg2s[i]));
