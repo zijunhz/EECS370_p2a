@@ -26,24 +26,27 @@ enum Operator {
     UNKNOWN
 };
 
+const char opName[9][9] = {"add", "nor", "lw", "sw", "beq", "jalr", "halt", "noop", ".fill"};
+
 enum Operator c2o(const char* c);
 
 int readAndParse(FILE*, char*, char*, char*, char*, char*);
 static inline int isNumber(char*);
 static inline int8_t checkReg(char* s);
 int32_t everything2dec(const char* op, const char* arg0, const char* arg1, const char* arg2);
-int32_t findTargetLine(const char* label, const char labels[MAXLINELENGTH][MAXLINELENGTH], int lineCnt);
+int32_t findTargetLine(const char* label, const char labels[MAXLINELENGTH + 10][MAXLINELENGTH + 10], int lineCnt);
 int32_t isLocalLabel(const char* label);
 int32_t isGlobalLabel(const char* label);
 int32_t hasLabel(const char* label);
 char* hasSymbolicAddress(enum Operator opc, char* arg0, char* arg2);
 char* hasGlobalSymbolicAddress(enum Operator opc, char* arg0, char* arg2);
+int32_t checkStrSameStart(const char* str1, const char* str2);
 
 int main(int argc, char** argv) {
     char *inFileString, *outFileString;
     FILE *inFilePtr, *outFilePtr;
-    char label[MAXLINELENGTH], opcode[MAXLINELENGTH], arg0[MAXLINELENGTH],
-        arg1[MAXLINELENGTH], arg2[MAXLINELENGTH];
+    char label[MAXLINELENGTH + 10], opcode[MAXLINELENGTH + 10], arg0[MAXLINELENGTH + 10],
+        arg1[MAXLINELENGTH + 10], arg2[MAXLINELENGTH + 10];
 
     if (argc != 3) {
         printf("error: usage: %s <assembly-code-file> <machine-code-file>\n",
@@ -65,7 +68,7 @@ int main(int argc, char** argv) {
         exit(1);
     }
 
-    char labels[MAXLINELENGTH][MAXLINELENGTH] = {0}, opcodes[MAXLINELENGTH][MAXLINELENGTH] = {0}, arg0s[MAXLINELENGTH][MAXLINELENGTH] = {0}, arg1s[MAXLINELENGTH][MAXLINELENGTH] = {0}, arg2s[MAXLINELENGTH][MAXLINELENGTH] = {0};
+    char labels[MAXLINELENGTH + 10][MAXLINELENGTH + 10] = {0}, opcodes[MAXLINELENGTH + 10][MAXLINELENGTH + 10] = {0}, arg0s[MAXLINELENGTH + 10][MAXLINELENGTH + 10] = {0}, arg1s[MAXLINELENGTH + 10][MAXLINELENGTH + 10] = {0}, arg2s[MAXLINELENGTH + 10][MAXLINELENGTH + 10] = {0};
 
     // read in from file to arrs
     uint32_t lineCnt = 0;
@@ -80,7 +83,7 @@ int main(int argc, char** argv) {
     }
     lineCnt--;
 
-    // handle comments
+    // handle comments, check reg
     for (uint32_t i = 0; i <= lineCnt; i++) {
         enum Operator opc = c2o(opcodes[i]);
         switch (opc) {
@@ -117,11 +120,15 @@ int main(int argc, char** argv) {
         }
     }
 
+    char reloc[MAXLINELENGTH + 10][MAXLINELENGTH + 10] = {0};
+    char symbolic[MAXLINELENGTH + 10][MAXLINELENGTH + 10] = {0};
+
     int32_t tCnt = 0, dCnt = 0, sCnt = 0, rCnt = 0;
     for (uint32_t i = 0; i <= lineCnt; i++) {
         enum Operator opc = c2o(opcodes[i]);
         if (opc == UNKNOWN)
             exit(1);
+        // find duplicate label
         if (hasLabel(labels[i]))
             for (uint32_t j = 0; j < i; j++)
                 if (!strcmp(labels[i], labels[j]))
@@ -130,24 +137,36 @@ int main(int argc, char** argv) {
             dCnt++;
         else
             tCnt++;
-        // TODO: handle adding to symbolic table
-        if (isGlobalLabel(labels[i]))
+        // deal with symbolic table append due to defined label
+        if (isGlobalLabel(labels[i])) {
             sCnt++;
-        // TODO: completely wrong, rewrite
+            sprintf(symbolic[sCnt], "%s %c %d", labels[i], opc == FILL ? 'D' : 'T', opc == FILL ? i - tCnt : i);
+        }
+        // deal with lines that has symbolic address
         if (hasSymbolicAddress(opc, arg0s[i], arg2s[i])) {
-            if (opc != BEQ)
+            char* theAddress = hasSymbolicAddress(opc, arg0s[i], arg2s[i]);
+            if (opc != BEQ) {  // opc == lw/sw/fill, then add to relocation table
                 rCnt++;
-            char* theLabel = hasSymbolicAddress(opc, arg0s[i], arg2s[i]);
-            int32_t targetLine = findTargetLine(theLabel, labels, lineCnt);
+                sprintf(reloc[rCnt], "%d %s %s", opc == FILL ? i - tCnt : i, opName[opc], theAddress);
+            }
+            int32_t targetLine = findTargetLine(theAddress, labels, lineCnt);
             if (targetLine == -1) {
-                if (isLocalLabel(theLabel))
+                if (isLocalLabel(theAddress))
                     exit(1);
                 if (opc == BEQ)
                     exit(1);
-                sCnt++;
-                // TODO: handle adding to symbolic table
-
-                strcpy(theLabel, "0");
+                int8_t alreadyExist = 0;
+                for (int32_t j = 1; j <= sCnt; j++) {
+                    if (checkStrSameStart(theAddress, symbolic[j])) {
+                        alreadyExist = 1;
+                        break;
+                    }
+                }
+                if (!alreadyExist) {
+                    sCnt++;
+                    sprintf(symbolic[sCnt], "%s U 0", theAddress);
+                }
+                strcpy(theAddress, "0");
             } else {
                 switch (opc) {
                     case LW:
@@ -213,6 +232,18 @@ int main(int argc, char** argv) {
     for (uint32_t i = 0; i <= lineCnt; i++)
         fprintf(outFilePtr, "%d\n", everything2dec(opcodes[i], arg0s[i], arg1s[i], arg2s[i]));
 
+    // print symbolic table
+
+    for (int32_t i = 1; i <= sCnt; i++) {
+        fprintf(outFilePtr, "%s\n", symbolic[i]);
+    }
+
+    // print reloc
+
+    for (int32_t i = 1; i <= rCnt; i++) {
+        fprintf(outFilePtr, "%s\n", reloc[i]);
+    }
+
     // /* here is an example for how to use readAndParse to read a line from
     //     inFilePtr */
     // if (!readAndParse(inFilePtr, label, opcode, arg0, arg1, arg2)) {
@@ -247,20 +278,20 @@ int main(int argc, char** argv) {
  * exit(1) if line is too long.
  */
 int readAndParse(FILE* inFilePtr, char* label, char* opcode, char* arg0, char* arg1, char* arg2) {
-    char line[MAXLINELENGTH];
+    char line[MAXLINELENGTH + 10];
     char* ptr = line;
 
     /* delete prior values */
     label[0] = opcode[0] = arg0[0] = arg1[0] = arg2[0] = '\0';
 
     /* read the line from the assembly-language file */
-    if (fgets(line, MAXLINELENGTH, inFilePtr) == NULL) {
+    if (fgets(line, MAXLINELENGTH + 10, inFilePtr) == NULL) {
         /* reached end of file */
         return (0);
     }
 
     /* check for line too long */
-    if (strlen(line) == MAXLINELENGTH - 1) {
+    if (strlen(line) == MAXLINELENGTH + 10 - 1) {
         printf("error: line too long\n");
         exit(1);
     }
@@ -312,10 +343,9 @@ isNumber(char* string) {
 }
 
 enum Operator c2o(const char* c) {
-    char s[9][9] = {"add", "nor", "lw", "sw", "beq", "jalr", "halt", "noop", ".fill"};
     enum Operator ops[9] = {ADD, NOR, LW, SW, BEQ, JALR, HALT, NOOP, FILL};
     for (uint8_t i = 0; i < 9; i++) {
-        if (!strcmp(s[i], c))
+        if (!strcmp(opName[i], c))
             return ops[i];
     }
     return UNKNOWN;
@@ -338,7 +368,7 @@ int32_t everything2dec(const char* op, const char* arg0, const char* arg1, const
     return ((opp << 22) & ((1 << 25) - (1 << 22))) + ((atoi(arg0) << 19) & ((1 << 22) - (1 << 19))) + ((atoi(arg1) << 16) & ((1 << 19) - (1 << 16))) + ((atoi(arg2)) & ((1 << 16) - 1));
 }
 
-int32_t findTargetLine(const char* label, const char labels[MAXLINELENGTH][MAXLINELENGTH], int lineCnt) {
+int32_t findTargetLine(const char* label, const char labels[MAXLINELENGTH + 10][MAXLINELENGTH + 10], int lineCnt) {
     for (int k = 0; k <= lineCnt; k++)
         if (!strcmp(labels[k], label)) {
             return k;
@@ -359,17 +389,24 @@ int32_t isGlobalLabel(const char* label) {
 }
 
 char* hasSymbolicAddress(enum Operator opc, char* arg0, char* arg2) {
-    char* theLabel = NULL;
+    char* theAddress = NULL;
     if (opc == LW || opc == SW || opc == BEQ)
-        theLabel = arg2;
+        theAddress = arg2;
     else if (opc == FILL)
-        theLabel = arg0;
+        theAddress = arg0;
     else
         return NULL;
-    return ((opc == LW || opc == SW || opc == BEQ || opc == FILL) && (!isNumber(theLabel))) ? theLabel : NULL;
+    return (!isNumber(theAddress)) ? theAddress : NULL;
 }
 
 char* hasGlobalSymbolicAddress(enum Operator opc, char* arg0, char* arg2) {
-    char* theLabel = hasSymbolicAddress(opc, arg0, arg2);
-    return (theLabel && isGlobalLabel(theLabel)) ? theLabel : NULL;
+    char* theAddress = hasSymbolicAddress(opc, arg0, arg2);
+    return (theAddress && isGlobalLabel(theAddress)) ? theAddress : NULL;
+}
+
+int32_t checkStrSameStart(const char* str1, const char* str2) {
+    for (int32_t i = 0; str1[i] != '\0' && str2[i] != '\0' && str1[i] != ' ' && str2[i] != ' '; i++)
+        if (str1[i] != str2[i])
+            return 0;
+    return 1;
 }
